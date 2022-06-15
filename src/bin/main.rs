@@ -1,6 +1,6 @@
 use error_chain::error_chain;
 use scdl::configuration::get_configuration;
-use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::Write;
 
 error_chain! {
@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
                         .and_then(|name| if name.is_empty() { None } else { Some(name) })
                         .unwrap_or("tmp.jpg");
                     println!("File name is {}", &fname);
-                    File::create(fname)?
+                    OpenOptions::new().write(true).create(true).open(fname)?
                 };
                 let buf = res.bytes().await?;
                 dest.write(buf.as_ref())?;
