@@ -13,7 +13,7 @@ pub struct Settings {
     pub host_name: String,
     pub mod_nm: String,
     pub filler: String,
-    pub set_nm: u8,
+    pub set_nm: u16,
     pub joiner: String,
     pub mod_append: String,
     pub file_suffix: String,
