@@ -9,5 +9,21 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
 
 #[derive(serde::Deserialize)]
 pub struct Settings {
-    pub host_name: String
+    pub protocol: String,
+    pub host_name: String,
+    pub mod_nm: String,
+    pub filler: String,
+    pub set_nm: u8,
+    pub joiner: String,
+    pub mod_append: String,
+    pub file_suffix: String,
+}
+
+impl Settings {
+    pub fn get_url_to_append_set(&self) -> String {
+        format!(
+            "{}://{}/{}/{}",
+            self.protocol, self.host_name, self.mod_nm, self.filler
+        )
+    }
 }
