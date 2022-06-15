@@ -14,11 +14,16 @@ error_chain! {
 async fn main() -> Result<()> {
     let config = get_configuration().expect("Config failure!");
     let url1 = config.get_url_to_append_set();
+    let mod_nm = config.mod_nm;
     let set_nm = config.set_nm;
-    let m_prepend = &config.mod_nm[..2];
+    let m_prepend = &mod_nm[..2];
     let m_append = config.mod_append;
     let joiner = config.joiner;
     let client = reqwest::Client::new();
+    let parent_dir_nm = format!("downloads/{}", &mod_nm);
+    std::fs::create_dir_all(&parent_dir_nm).expect("Cannot Create parent Directory!");
+    let set_dir_nm = format!("{}/{:03}", &parent_dir_nm, &set_nm);
+    std::fs::create_dir_all(&set_dir_nm).expect("Cannot Create set Directory!");
     for file_number in 1..300 {
         let target = format!(
             "{}{:03}/{}{}{}{}{:03}.{}",
@@ -35,7 +40,10 @@ async fn main() -> Result<()> {
                         .and_then(|name| if name.is_empty() { None } else { Some(name) })
                         .unwrap_or("tmp.jpg");
                     println!("File name is {}", &fname);
-                    OpenOptions::new().write(true).create(true).open(fname)?
+                    OpenOptions::new()
+                        .write(true)
+                        .create(true)
+                        .open(format!("{}/{}", &set_dir_nm, fname))?
                 };
                 let buf = res.bytes().await?;
                 dest.write(buf.as_ref())?;
