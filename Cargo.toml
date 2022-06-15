@@ -9,3 +9,5 @@ edition = "2021"
 reqwest = "0.11.11"
 tokio = {version="1.19.2", features=["macros","rt-multi-thread"]}
 error-chain = "0.12.4"
+serde = {version="1.0.137",features=["derive"]}
+config = "0.11"

@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{copy, Write};
 use error_chain::error_chain;
+use scdl::configuration::get_configuration;
 
 error_chain! {
     foreign_links {
@@ -11,9 +12,11 @@ error_chain! {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let config = get_configuration().expect("Config failure!");
+    let target = config.host_name;
     let client = reqwest::Client::new();
     let res = client
-        .post("")
+        .post(target)
         .send()
         .await?;
     let mut dest = {
