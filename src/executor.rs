@@ -14,7 +14,7 @@ pub async fn run() -> Result<()> {
     let config = get_configuration().expect("Config failure!");
     let start_set_nm = config.start_set_nm;
     let end_set_nm = config.end_set_nm;
-    let num_threads = 3 as u16;
+    let num_threads = config.thread_nm;
     let mut counter = start_set_nm;
     while end_set_nm - counter >= num_threads {
         let mut trds = vec![];

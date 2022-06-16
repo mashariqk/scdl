@@ -18,6 +18,7 @@ pub struct Settings {
     pub joiner: String,
     pub mod_append: String,
     pub file_suffix: String,
+    pub thread_nm: u16,
 }
 
 impl Settings {
