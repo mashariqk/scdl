@@ -33,7 +33,32 @@ pub async fn download_set(set_nm: u16) -> Result<()> {
 }
 
 pub async fn download(url: &String, client: &reqwest::Client, set_dir_nm: &String) -> Result<()> {
-    let res = client.post(url).send().await?;
+    let mut counter = 0;
+    let mut response = match client.post(url).send().await {
+        Ok(r) => Ok(r),
+        Err(e) => {
+            counter += 1;
+            println!(
+                "Retry count is now {} and error is {} for url {}",
+                counter, e, &url
+            );
+            Err(e)
+        }
+    };
+    while counter < 3 && response.is_err() {
+        response = match client.post(url).send().await {
+            Ok(r) => Ok(r),
+            Err(e) => {
+                counter += 1;
+                println!(
+                    "Retry count is now {} and error is {} for url {}",
+                    counter, e, &url
+                );
+                Err(e)
+            }
+        };
+    }
+    let res = response?;
     match res.status().as_u16() {
         200 => {
             let fname = extract_name_from_url(url);
