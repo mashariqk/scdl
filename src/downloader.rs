@@ -1,7 +1,5 @@
 use crate::configuration::get_configuration;
-use crate::executor::ErrorKind::HttpRequest;
 use error_chain::error_chain;
-use std::f32::consts::E;
 use std::fs::OpenOptions;
 use std::io::Write;
 
@@ -12,15 +10,24 @@ error_chain! {
     }
 }
 
-pub async fn download(url: &String, client: &reqwest::Client, fname: &String) -> Result<()> {
+pub async fn download(url: &String, client: &reqwest::Client, set_dir_nm: &String) -> Result<()> {
     let res = client.post(url).send().await?;
     match res.status().as_u16() {
         200 => {
-            let mut dest = OpenOptions::new().write(true).create(true).open(fname)?;
+            let fname = extract_name_from_url(url);
+            let mut dest = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(format!("{}/{}", set_dir_nm, fname))?;
             let buf = res.bytes().await?;
             dest.write(buf.as_ref())?;
             Ok(())
         }
-        _ => panic!("Download error"),
+        _ => Err("non 200 code".into()),
     }
+}
+
+fn extract_name_from_url(url: &String) -> &str {
+    let index = url.rfind('/').expect("No / found in URL") + 1;
+    &url[index..]
 }

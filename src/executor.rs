@@ -1,5 +1,5 @@
 use crate::configuration::get_configuration;
-use crate::downloader::download;
+use crate::downloader;
 use error_chain::error_chain;
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -8,6 +8,7 @@ error_chain! {
     foreign_links {
         Io(std::io::Error);
         HttpRequest(reqwest::Error);
+        DownErr(downloader::Error);
     }
 }
 
@@ -29,27 +30,7 @@ pub async fn run() -> Result<()> {
             "{}{:03}/{}{}{}{}{:03}.{}",
             url1, &set_nm, m_prepend, m_append, set_nm, joiner, file_number, config.file_suffix
         );
-        let res = client.post(target).send().await?;
-        match res.status().as_u16() {
-            200 => {
-                let mut dest = {
-                    let fname = res
-                        .url()
-                        .path_segments()
-                        .and_then(|segments| segments.last())
-                        .and_then(|name| if name.is_empty() { None } else { Some(name) })
-                        .unwrap_or("tmp.jpg");
-                    println!("File name is {}", &fname);
-                    OpenOptions::new()
-                        .write(true)
-                        .create(true)
-                        .open(format!("{}/{}", &set_dir_nm, fname))?
-                };
-                let buf = res.bytes().await?;
-                dest.write(buf.as_ref())?;
-            }
-            _ => break,
-        }
+        downloader::download(&target, &client, &set_dir_nm).await?;
     }
 
     Ok(())
