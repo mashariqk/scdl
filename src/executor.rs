@@ -22,8 +22,8 @@ pub async fn run() -> Result<()> {
             let x = tokio::spawn(async move {
                 match downloader::download_set(i).await {
                     Ok(()) => {}
-                    _ => {
-                        println!("Finished downloading set {}", i);
+                    Err(e) => {
+                        println!("Got the error {}.Finished downloading set {}", e, i);
                     }
                 }
             });
@@ -38,8 +38,8 @@ pub async fn run() -> Result<()> {
         for i in counter..=end_set_nm {
             match downloader::download_set(i).await {
                 Ok(()) => {}
-                _ => {
-                    println!("Finished downloading set {}", i);
+                Err(e) => {
+                    println!("Got the error {}. Finished downloading set {}", e, i);
                 }
             }
         }

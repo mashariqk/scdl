@@ -70,7 +70,12 @@ pub async fn download(url: &String, client: &reqwest::Client, set_dir_nm: &Strin
             dest.write(buf.as_ref())?;
             Ok(())
         }
-        _ => Err("non 200 code".into()),
+        _ => Err(format!(
+            "HTTP code {} received for url: {}",
+            res.status().as_u16(),
+            url
+        )
+        .into()),
     }
 }
 
